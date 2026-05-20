@@ -59,20 +59,23 @@ table = app.Table(
 @app.agent(topic)
 async def transformstations(stations):
     async for station in stations:
-        line = None
+        lines = []
         if station.red:
-            line = "red"
-        elif station.blue:
-            line = "blue"
-        elif station.green:
-            line = "green"
+            lines.append("red")
+        if station.blue:
+            lines.append("blue")
+        if station.green:
+            lines.append("green")
 
-        table[station.station_id] = TransformedStation(
-            station_id=station.station_id,
-            station_name=station.station_name,
-            order=station.order,
-            line=line,
-        )
+        for line in lines:
+            transformed = TransformedStation(
+                station_id=station.station_id,
+                station_name=station.station_name,
+                order=station.order,
+                line=line,
+            )
+            table[f"{line}.{station.station_id}"] = transformed
+            await out_topic.send(value=transformed)
 
 
 if __name__ == "__main__":
