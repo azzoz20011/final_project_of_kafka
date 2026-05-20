@@ -1,0 +1,21 @@
+{
+  "name": "arrivals-postgres-sink",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+    "connection.url": "jdbc:postgresql://postgres:5432/cta",
+    "connection.user": "cta_admin",
+    "connection.password": "chicago",
+
+    "topics": "org.chicago.cta.station.arrivals",
+
+    "insert.mode": "insert",
+    "auto.create": "false",
+    "auto.evolve": "false",
+
+    "table.name.format": "arrivals",
+
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "io.confluent.connect.avro.AvroConverter",
+    "value.converter.schema.registry.url": "http://schema-registry:8081"
+  }
+}
