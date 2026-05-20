@@ -38,7 +38,7 @@ class Weather(Producer):
             with open(f"{Path(__file__).parents[0]}/schemas/weather_value.json") as f:
                 Weather.value_schema = json.load(f)
 
-        self.topic_name = "org.chicago.cta.weather.v1"
+        self.topic_name = "cta.weather.v1"
         self.status = Weather.status.sunny
         self.temp = 70.0
         if month in Weather.winter_months:
