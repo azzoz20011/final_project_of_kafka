@@ -64,9 +64,7 @@ class Producer:
             client.create_topics([NewTopic(self.topic_name, self.num_partitions, self.num_replicas)])
         except Exception as e:
             logger.error(f"Failed to create topic {self.topic_name}: {e}")
-        Producer.produce(
-
-        )
+    
 
     def time_millis(self):
         return int(round(time.time() * 1000))

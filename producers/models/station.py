@@ -23,6 +23,7 @@ class Station(Producer):
 
     def __init__(self, station_id, name, color, direction_a=None, direction_b=None):
         self.name = name
+        self.color = color.name if hasattr(color, "name") else str(color)
         station_name = (
             self.name.lower()
             .replace("/", "_and_")
@@ -37,7 +38,7 @@ class Station(Producer):
         # replicas
         #
         #
-        topic_name = f"cta.{color}.{station_name}" # TODO: Come up with a better topic name
+        topic_name = f"cta.arrival.{self.color}.{station_name}" # TODO: Come up with a better topic name
         super().__init__(
             topic_name,
             key_schema=Station.key_schema,
@@ -47,7 +48,6 @@ class Station(Producer):
         )
 
         self.station_id = int(station_id)
-        self.color = color
         self.dir_a = direction_a
         self.dir_b = direction_b
         self.a_train = None
@@ -68,12 +68,12 @@ class Station(Producer):
            key={"timestamp": self.time_millis()},
            value={
                 "station_id": self.station_id,  
-                "train_id": train.train_id,
+                "train_id": str(train.train_id),
                 "direction": direction,
                 "line": self.color,
-                "train_status": train.status,
-                "prev_station_id": prev_station_id,
-                "prev_direction": prev_direction,
+                "train_status": train.status.name if hasattr(train.status, "name") else str(train.status),
+                "prev_station_id": int(prev_station_id) if prev_station_id is not None else -1,
+                "prev_direction": prev_direction if prev_direction is not None else "",
            },
         )
 
