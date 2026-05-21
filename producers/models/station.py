@@ -38,7 +38,7 @@ class Station(Producer):
         # replicas
         #
         #
-        topic_name = f"cta.arrival.{self.color}.{station_name}" # TODO: Come up with a better topic name
+        topic_name = f"cta.arrival" # TODO: Come up with a better topic name
         super().__init__(
             topic_name,
             key_schema=Station.key_schema,

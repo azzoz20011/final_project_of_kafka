@@ -28,6 +28,8 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
     depends_on:
     - "zookeeper"
 
@@ -90,6 +92,7 @@ services:
       KSQL_LISTENERS: "http://0.0.0.0:8088"
       KSQL_KSQL_SERVICE_ID: "ksql_service_docker"
       KSQL_KSQL_SCHEMA_REGISTRY_URL: "http://schema-registry:8081/"
+      KSQL_KSQL_STREAMS_REPLICATION_FACTOR: "1"
     depends_on:
     - "kafka0"
     - "schema-registry"
