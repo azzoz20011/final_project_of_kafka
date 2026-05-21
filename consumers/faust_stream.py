@@ -29,14 +29,18 @@ class TransformedStation(faust.Record):
     line: str
 
 
-# TODO: Define a Faust Stream that ingests data from the Kafka Connect stations topic and
-#   places it into a new topic with only the necessary information.
 app = faust.App("stations-stream", broker="kafka://localhost:9092", store="memory://")
-# TODO: Define the input Kafka Topic. Hint: What topic did Kafka Connect output to?
-topic = app.topic("org.chicago.cta.stations", value_type=Station)
-# TODO: Define the output Kafka Topic
-out_topic = app.topic("cta.output_stations", partitions=1, value_type=TransformedStation)
-# TODO: Define a Faust Table
+
+# Kafka Connect writes the stations table to cta.stations.
+topic = app.topic("cta.stations", value_type=Station)
+
+# Keep the requested output topic name.
+out_topic = app.topic(
+    "cta.output_stations",
+    partitions=1,
+    value_type=TransformedStation,
+)
+
 table = app.Table(
     "cta.stations",
     default=TransformedStation,
@@ -45,30 +49,26 @@ table = app.Table(
 )
 
 
-#
-#
-# TODO: Using Faust, transform input `Station` records into `TransformedStation` records. Note that
-# "line" is the color of the station. So if the `Station` record has the field `red` set to true,
-# then you would set the `line` of the `TransformedStation` record to the string `"red"`
-#
-#
-@app.agent
-async def transformstations(topic):
-    async for station in topic:
-        line = None
+@app.agent(topic)
+async def transformstations(stations):
+    async for station in stations:
+        lines = []
         if station.red:
-            line = "red"
-        elif station.blue:
-            line = "blue"
-        elif station.green:
-            line = "green"
+            lines.append("red")
+        if station.blue:
+            lines.append("blue")
+        if station.green:
+            lines.append("green")
 
-        table[station.station_id] = TransformedStation(
-            station_id=station.station_id,
-            station_name=station.station_name,
-            order=station.order,
-            line=line,
-        )
+        for line in lines:
+            transformed = TransformedStation(
+                station_id=station.station_id,
+                station_name=station.station_name,
+                order=station.order,
+                line=line,
+            )
+            table[f"{line}.{station.station_id}"] = transformed
+            await out_topic.send(value=transformed)
 
 
 if __name__ == "__main__":
